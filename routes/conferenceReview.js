@@ -10,17 +10,6 @@ let db = mysql.createConnection({
     database: 'db_a9ed65_tiendun'   // tên cơ sở dữ liệu MySQL
 });
 
-// full bảng
-router.get('/', function (req, res) {
-    var resp = promiseQuery("SELECT * FROM `conference_review`", db);
-
-    resp.then(data => {
-        res.json(data);
-    }).catch(err => {
-        console.error(err);
-        res.status(500).send("Internal Server Error");
-    });
-});
 
 // nội dung review
 router.get('/content', function (req, res) {

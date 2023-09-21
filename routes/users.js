@@ -23,8 +23,9 @@ router.get('/', function (req, res) {
 });
 
 // full name user
-router.get('/fullName', function (req, res) {
-  var resp = promiseQuery("SELECT `userFullName` FROM `users`", db);
+router.get('/fullname', function (req, res) {
+  let {fullname, id} = req.query;
+  var resp = promiseQuery(`SELECT userFullName FROM users WHERE user_ID = ${id} OR userFullName = "${fullname}"`, db);
 
   resp.then(data => {
     res.json(data);

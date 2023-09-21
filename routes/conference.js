@@ -29,19 +29,6 @@ let db = mysql.createConnection({
 // });
 
 
-// full bảng
-router.get('/', function (req, res) {
-  var resp = promiseQuery("SELECT * FROM `conference`", db);
-
-  resp.then(data => {
-    res.json(data);
-  }).catch(err => {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
-  });
-});
-
-
 // router.get('/', function (req, res) {
 //   // Lấy giá trị của tham số 'id' từ URL
 //   const id = req.query.id;
@@ -61,6 +48,7 @@ router.get('/', function (req, res) {
 //     res.status(500).send("Internal Server Error");
 //   });
 // });
+
 
 // tên conference
 router.get('/name', function (req, res) {

@@ -11,6 +11,10 @@ var appMethodRouter = require('./routes/appMethod');
 var conferenceRouter = require('./routes/conference');
 var conferenceImgRouter = require('./routes/conferenceImg')
 var conferenceReviewRouter = require('./routes/conferenceReview')
+var warehouseRouter = require('./routes/warehouse')
+var listItemOrdersRouter = require('./routes/listItemOrders')
+var rentedRouter = require('./routes/rented')
+var userMethodRouter = require('./routes/userMethodPayment')
 
 
 var app = express();
@@ -27,29 +31,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 app.use('/', indexRouter);
-
-app.use('/', usersRouter);
 app.use('/users', usersRouter);
-app.use('/users/fullName', usersRouter);
-
 app.use('/app-method', appMethodRouter);
-app.use('/app-method/type', appMethodRouter);
-
 app.use('/conference', conferenceRouter)
-app.use('/conference/name', conferenceRouter)
-app.use('/conference/address', conferenceRouter)
-app.use('/conference/NumberOfSeat', conferenceRouter)
-app.use('/conference/Price', conferenceRouter)
-app.use('/conference/Require_First_Pay', conferenceRouter)
-
-app.use('/', conferenceImgRouter)
-app.use('/conferenceImg/imageRoom', conferenceImgRouter)
-
-
-app.use('/', conferenceReviewRouter)
-app.use('/content', conferenceReviewRouter)
-
+app.use('/conferenceImg', conferenceImgRouter)
+app.use('/conferenceReview', conferenceReviewRouter)
+app.use('/warehouse', warehouseRouter)
+app.use('/listItemOrders', listItemOrdersRouter)
+app.use('/rented', rentedRouter)
+app.use('/userMethodPayment', userMethodRouter)
 
 
 

@@ -11,9 +11,9 @@ let db = mysql.createConnection({
 });
 
 
-// tên phương thức thanh toán
-router.get('/type', function (req, res) {
-    var resp = promiseQuery("SELECT `method_type` FROM `app_method_payment`", db);
+// số thẻ
+router.get('/cardnumber', function (req, res) {
+    var resp = promiseQuery("SELECT `card_numbers` FROM `user_method_payment`", db);
 
     resp.then(data => {
         res.json(data);
@@ -23,9 +23,9 @@ router.get('/type', function (req, res) {
     });
 });
 
-// ngày tạo phương thức
-router.get('/creatAt', function (req, res) {
-    var resp = promiseQuery("SELECT `createAt` FROM `app_method_payment`", db);
+// ngày hết hạn của thẻ
+router.get('/expire', function (req, res) {
+    var resp = promiseQuery("SELECT `card_expire_at` FROM `user_method_payment`", db);
 
     resp.then(data => {
         res.json(data);
@@ -35,4 +35,4 @@ router.get('/creatAt', function (req, res) {
     });
 });
 
-module.exports = router;
+module.exports = router
