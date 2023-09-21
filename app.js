@@ -10,6 +10,7 @@ var usersRouter = require('./routes/users');
 var appMethodRouter = require('./routes/appMethod');
 var conferenceRouter = require('./routes/conference');
 var conferenceImgRouter = require('./routes/conferenceImg')
+var conferenceReviewRouter = require('./routes/conferenceReview')
 
 
 var app = express();
@@ -42,8 +43,12 @@ app.use('/conference/NumberOfSeat', conferenceRouter)
 app.use('/conference/Price', conferenceRouter)
 app.use('/conference/Require_First_Pay', conferenceRouter)
 
-app.use('/conferenceImg', conferenceImgRouter)
+app.use('/', conferenceImgRouter)
 app.use('/conferenceImg/imageRoom', conferenceImgRouter)
+
+
+app.use('/', conferenceReviewRouter)
+app.use('/content', conferenceReviewRouter)
 
 
 
