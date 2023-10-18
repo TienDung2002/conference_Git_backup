@@ -36,79 +36,90 @@ router.get('/', function (req, res) {
 // });
 
 
+router.post("/login", async (req, res) => {
+  let responseContext = {
+    json: {
+      status: "denied",
+      field: [],
+    },
+    status: 404,
+  };
 
-// router.post('/login', function (req, res) {
-//   let responseContext = {
-//     json: {
-//       status: "denied",
-//       field: {},
-//     },
-//     status: 404,
-//   }
-//   let UserLogin = req.body
-//   let UserData = promiseQuery(
-//     `
-//   SELECT userEmail, userPassword
-//   FROM users
-//   WHERE userEmail = '${UserLogin.userEmail}' OR userPassword = '${UserLogin.userPassword}'
-//   `, db)
+  let UserLogin = req.body;
+  let UserFilter = await promiseQuery(`
+  SELECT userEmail, userPassword
+  FROM users
+  WHERE userEmail = '${UserLogin.userEmail}'`, db);
 
+  if (UserFilter.length !== 0) {
+    if (UserFilter.filter(e => e.userPassword === UserLogin.userPassword).length !== 0) {
+      responseContext.json.status = "accepted";
+      responseContext.json.field = { name: "id", value: UserFilter[0].id }
+      responseContext.status = 200
+    }
+    else {
+      responseContext.json.field.push({ name: "password", msg: "wrong" })
+    }
+  }
+  else {
+    responseContext.json.field.push({ name: "username", msg: "mis" })
+  }
+  res.status(responseContext.status).json({ ...responseContext.json });
+});
 
-//   if (UserData.length > 0) {
-//     UserData.forEach((element) => {
-//       Object.keys(element).forEach((e) => {
-//         if (element[e] == UserLogin[e]) {
-//           if (!responseContext.json.field[e]) {
-//             responseContext.json.field[e] = "same";
-//           }
-//         }
-//       });
-//     });
-//   }
-//   else {
-//     responseContext.status = 500;
-//   }
-//   res.status(responseContext.status).json({ ...responseContext.json });
-// });
-
-router.post('/login', function (req, res) {
+app.post("/register", async (req, res) => {
   let responseContext = {
     json: {
       status: "denied",
       field: {},
     },
     status: 404,
-  }
-  let UserLogin = req.body;
-  let userEmail = UserLogin.userEmail;
-  let userPassword = UserLogin.userPassword;
+  };
 
-  // Truy vấn cơ sở dữ liệu để lấy thông tin người dùng dựa trên email hoặc mật khẩu
-  let UserData = promiseQuery(
+  let UserSignup = req.body;
+  const nextUserId = await findNextUserId(); // Tìm ID tiếp theo để insert
+  let UserFilter = await promiseQuery(
     `
-  SELECT userEmail, userPassword
-  FROM users
-  WHERE userEmail = '${userEmail}' OR userPassword = '${userPassword}'
-  `, db);
+      SELECT userEmail
+      FROM users
+      WHERE userEmail = '${UserSignup.userEmail}'`, db);
 
-  UserData.then((data) => {
-    if (data.length > 0) {
-      const user = data[0];
-      if (user.userEmail === userEmail && user.userPassword === userPassword) {
-        responseContext.json.status = "accepted";
-        responseContext.status = 200;
-      }
-    }
+  if (UserFilter.length !== 0) {
+    UserFilter.forEach((element) => {
+      Object.keys(element).forEach((e) => {
+        if (element[e] == UserSignup[e]) {
+          if (!responseContext.json.field[e]) {
+            responseContext.json.field[e] = "same";
+          }
+        }
+      });
+    });
+  }
+  else {
+    let InsertUser = promiseQuery(
+      `
+        INSERT INTO Users (
+          user_ID,
+          userFullName,
+          userPhone,
+          userEmail,
+          userPassword,
+          userAvartar,
+        )
+        VALUES (
+            ${nextUserId},
+            '${UserSignup.userFullName}',
+            'Null',
+            '${UserSignup.userEmail}',
+            '${UserSignup.userPassword}',
+            'Null',
+        )
+      `
+    )
+  }
 
-    res.status(responseContext.status).json({ ...responseContext.json });
-  }).catch((error) => {
-    console.error(error);
-    responseContext.status = 500;
-    res.status(responseContext.status).json({ ...responseContext.json });
-  });
-});
-
-
+  res.status(responseContext.status).json({ ...responseContext.json });
+})
 
 /*
 cai Call<ResponseClass> methodname( || @Body BodyForm body || @Query("key || name || ...") datatype value) )
@@ -134,17 +145,10 @@ res.json( ClassResponse = {
 android nhan: class ClassResponse: {
   @SeriableName("status") private datatype tenBien;
   @SeriableName("Data") private ArryaList<> || HashMap || String || Boolean || .. tenBien2;
-
   getter, setter
 }
 */
 
-
-// -> Call ve db :a = promisWuery(`SELECT * .. WHERE `username` = {body.username} `)
-// Check validate a.length!=0 {res.json{status: "false", "filed": "tu check"}};
-
-// a.length == 0 -> Call ve db: promisWuery(`INSERT INTO `tb`(`field1`, `field2`, ...) VALUES({body.field1}, {body.field2}, ...)`)
-// Create account
 
 /* GET users listing. */
 router.post('/:idu', function (req, res) {
