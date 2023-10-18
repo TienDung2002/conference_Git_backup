@@ -18,7 +18,7 @@ router.get('/', function (req, res) {
     res.json(data);
   }).catch(err => {
     console.error(err);
-    res.status(500).send("Internal Server Error");``
+    res.status(500).send("Internal Server Error"); ``
   });
 });
 
@@ -37,52 +37,119 @@ router.get('/', function (req, res) {
 
 
 
-router.post('/signup', function(req, res) {
-  /*
-  cai Call<ResponseClass> methodname( || @Body BodyForm body || @Query("key || name || ...") datatype value) )
-  ex: 
-  |-  class BodyForm {
-        private String username,
-        private String password
-      } -> body= res.body : {
-        "username": value,
-        "password": "value"
-      }
-  |- Method: nameMethod(@Query("name") String value), 
-      Call: nameMethod("Duc"), 
-      Query: url?name=Duc 
-      -> const query = res.query : {
-        "name": "Duc"
-      };
+// router.post('/login', function (req, res) {
+//   let responseContext = {
+//     json: {
+//       status: "denied",
+//       field: {},
+//     },
+//     status: 404,
+//   }
+//   let UserLogin = req.body
+//   let UserData = promiseQuery(
+//     `
+//   SELECT userEmail, userPassword
+//   FROM users
+//   WHERE userEmail = '${UserLogin.userEmail}' OR userPassword = '${UserLogin.userPassword}'
+//   `, db)
 
-  res.json( ClassResponse = {
-    satus: "...", 
-    "Data: ..."
-  })
-  android nhan: class ClassResponse: {
-    @SeriableName("status") private datatype tenBien;
-    @SeriableName("Data") private ArryaList<> || HashMap || String || Boolean || .. tenBien2;
 
-    getter, setter
+//   if (UserData.length > 0) {
+//     UserData.forEach((element) => {
+//       Object.keys(element).forEach((e) => {
+//         if (element[e] == UserLogin[e]) {
+//           if (!responseContext.json.field[e]) {
+//             responseContext.json.field[e] = "same";
+//           }
+//         }
+//       });
+//     });
+//   }
+//   else {
+//     responseContext.status = 500;
+//   }
+//   res.status(responseContext.status).json({ ...responseContext.json });
+// });
+
+router.post('/login', function (req, res) {
+  let responseContext = {
+    json: {
+      status: "denied",
+      field: {},
+    },
+    status: 404,
   }
-  */
+  let UserLogin = req.body;
+  let userEmail = UserLogin.userEmail;
+  let userPassword = UserLogin.userPassword;
 
-  const body = res.body;
+  // Truy vấn cơ sở dữ liệu để lấy thông tin người dùng dựa trên email hoặc mật khẩu
+  let UserData = promiseQuery(
+    `
+  SELECT userEmail, userPassword
+  FROM users
+  WHERE userEmail = '${userEmail}' OR userPassword = '${userPassword}'
+  `, db);
 
-  // -> Call ve db :a = promisWuery(`SELECT * .. WHERE `username` = {body.username} `)
-  // Check validate a.length!=0 {res.json{status: "false", "filed": "tu check"}};
+  UserData.then((data) => {
+    if (data.length > 0) {
+      const user = data[0];
+      if (user.userEmail === userEmail && user.userPassword === userPassword) {
+        responseContext.json.status = "accepted";
+        responseContext.status = 200;
+      }
+    }
 
-  // a.length == 0 -> Call ve db: promisWuery(`INSERT INTO `tb`(`field1`, `field2`, ...) VALUES({body.field1}, {body.field2}, ...)`)
-  // Create account
-
-  console.log(1);
-  res.json(req.body);
+    res.status(responseContext.status).json({ ...responseContext.json });
+  }).catch((error) => {
+    console.error(error);
+    responseContext.status = 500;
+    res.status(responseContext.status).json({ ...responseContext.json });
+  });
 });
 
+
+
+/*
+cai Call<ResponseClass> methodname( || @Body BodyForm body || @Query("key || name || ...") datatype value) )
+ex: 
+|- class BodyForm {
+      private String username,
+      private String password
+    } -> body= res.body : {
+      "username": value,
+      "password": "value"
+    }
+|- Method: nameMethod(@Query("name") String value), 
+    Call: nameMethod("Duc"), 
+    Query: url?name=Duc 
+    -> const query = res.query : {
+      "name": "Duc"
+    };
+
+res.json( ClassResponse = {
+  satus: "...", 
+  "Data: ..."
+})
+android nhan: class ClassResponse: {
+  @SeriableName("status") private datatype tenBien;
+  @SeriableName("Data") private ArryaList<> || HashMap || String || Boolean || .. tenBien2;
+
+  getter, setter
+}
+*/
+
+
+// -> Call ve db :a = promisWuery(`SELECT * .. WHERE `username` = {body.username} `)
+// Check validate a.length!=0 {res.json{status: "false", "filed": "tu check"}};
+
+// a.length == 0 -> Call ve db: promisWuery(`INSERT INTO `tb`(`field1`, `field2`, ...) VALUES({body.field1}, {body.field2}, ...)`)
+// Create account
+
 /* GET users listing. */
-router.post('/:idu', function(req, res) {
+router.post('/:idu', function (req, res) {
   res.status(200).json({
-    "params" : req.params,
+    "params": req.params,
     "body": req.body,
     "query": req.query
   })
