@@ -36,7 +36,7 @@ router.get('/', function (req, res) {
 // });
 
 
-router.post("/login", async (req, res) => {
+router.post("/login", async function (req, res) {
   let responseContext = {
     json: {
       status: "denied",
@@ -47,27 +47,32 @@ router.post("/login", async (req, res) => {
 
   let UserLogin = req.body;
   let UserFilter = await promiseQuery(`
-  SELECT userEmail, userPassword
+  SELECT user_ID, userFullName, userPhone, userEmail, userPassword
   FROM users
   WHERE userEmail = '${UserLogin.userEmail}'`, db);
 
-  if (UserFilter.length !== 0) {
-    if (UserFilter.filter(e => e.userPassword === UserLogin.userPassword).length !== 0) {
-      responseContext.json.status = "accepted";
-      responseContext.json.field = { name: "id", value: UserFilter[0].id }
-      responseContext.status = 200
-    }
-    else {
-      responseContext.json.field.push({ name: "password", msg: "wrong" })
-    }
-  }
+  if (UserFilter.length === 0) {
+    responseContext.json.field.push({ name: "username", msg: "wrong" });
+    // Kiểm tra UserFilter
+    responseContext.json.field.push({ check: UserLogin.userEmail })
+  } 
   else {
-    responseContext.json.field.push({ name: "username", msg: "mis" })
+    if (UserFilter[0].userPassword === UserLogin.userPassword) {
+      responseContext.json.status = "accepted";
+      responseContext.json.field = {
+        email: UserFilter[0].userEmail,
+        value: UserFilter[0].userPassword
+      };
+      responseContext.status = 200;
+    } else {
+      responseContext.json.field.push({ name: "password", msg: "wrong" });
+    }
   }
+
   res.status(responseContext.status).json({ ...responseContext.json });
 });
 
-app.post("/register", async (req, res) => {
+router.post("/register", async (req, res) => {
   let responseContext = {
     json: {
       status: "denied",
